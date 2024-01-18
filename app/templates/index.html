@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChatBot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('form').submit(function(event) {
+            event.preventDefault(); // Prevent form from submitting
+    
+            // Use FormData to collect data from the form
+            var formData = new FormData(this);
+    
+            console.log('Sending data: ', formData);  // Log the data being sent
+    
+            // Send form data via AJAX
+            $.ajax({
+              url: '/send',
+              type: 'POST',
+              data: formData,
+              processData: false,
+              contentType: false,
+              success: function(response) {
+                  console.log('Received response:', response);  // Debug: Log the response
+
+                  var userMessage = response.message;
+                  var sendTime = response.send_time;
+                  var botMessage = response.bot_response;
+                  var userImage = response.filename;
+    
+                    if(userMessage && userImage){
+                      var ImaMsgHTML = `
+                          <div class="msg right-msg">
+                              <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
+                              <div class="msg-bubble">
+                                  <div class="msg-info">
+                                      <div class="msg-info-name">You</div>
+                                      <div class="msg-info-time">${sendTime}</div>
+                                  </div>
+                                  <div class="msg-text">
+                                      <img class='msger_image' src="/static/uploads/${userImage}" width="300" height="300" alt="User image">
+                                      <p>${userMessage}</p>
+                                  </div>
+                              </div>
+                          </div>
+                        `;
+                    }
+                    else if(userImage){
+                      var imageHTML = `
+                          <div class="msg right-msg">
+                              <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
+                              <div class="msg-bubble">
+                                  <div class="msg-info">
+                                      <div class="msg-info-name">You</div>
+                                      <div class="msg-info-time">${sendTime}</div>
+                                  </div>
+                                  <div class="msg-text">
+                                      <img class='msger_image' src="/static/uploads/${userImage}" width="300" height="300" alt="User image">
+                                  </div>
+                              </div>
+                          </div>
+                      `;
+                    }
+                    else if(userMessage){
+                      var messageHTML = `
+                          <div class="msg right-msg">
+                              <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
+                              <div class="msg-bubble">
+                                  <div class="msg-info">
+                                      <div class="msg-info-name">You</div>
+                                      <div class="msg-info-time">${sendTime}</div>
+                                  </div>
+                                  <div class="msg-text">${userMessage}</div>
+                              </div>
+                          </div>
+                      `;
+                    }
+                    if(messageHTML) {
+                        $('.msger-chat').append(messageHTML);
+                    }
+                    if(imageHTML) {
+                        $('.msger-chat').append(imageHTML);
+                    }
+                    if(ImaMsgHTML) {
+                        $('.msger-chat').append(ImaMsgHTML);
+                    }
+                    $('.msger-input').val('');
+    
+                    if(botMessage){
+                      var botMessageHTML = `
+                      
+                          <div class="msg left-msg">
+                              <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
+                              <div class="msg-bubble">
+                                  <div class="msg-info">
+                                      <div class="msg-info-name">BOT</div>
+                                      <div class="msg-info-time">${sendTime}</div>
+                                  </div>
+                                  <div class="msg-text">${botMessage}</div>
+                              </div>
+                          </div>
+                        
+                      `;
+                    }
+    
+                    
+                    if(botMessageHTML) {
+                        setTimeout(function() {
+                        $('.msger-chat').append(botMessageHTML);
+                    }, 2000);
+                    }
+                    
+                    $('.msger-input').val('');
+                },
+                error: function(error) {
+                    console.log('Error:', error);  // Debug: Log any errors
+                }
+            });
+        });
+    });
+    </script>
+    
+  
+</head>
+<body>
+  
+    <section class="msger">
+        <header class="msger-header">
+          <div class="msger-header-title">
+            <i class="fas fa-comment-alt"></i> AAI_AGAIN
+          </div>
+          <div class="msger-header-options">
+            <span><i class="fas fa-cog"></i></span>
+          </div>
+          <input class='msger-logout-btn' type="button" value="Logout" onclick="location.href='/logout'">
+        </header>
+
+        <main class="msger-chat">
+               
+            {% for image in images %}
+                <div class="msg right-msg">
+                    <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
+                    <div class="msg-bubble">
+                        <div class="msg-info">
+                            <div class="msg-info-name">You</div>
+                            <div class="msg-info-time">{{ image.send_time }}</div>
+                        </div>
+                        <div class="msg-text">
+                            <img class='msger_image' src="/static/uploads/{{ image.filename }}" width="300" height="300" alt="User image">
+                            {% if image.messages %}  <!-- This condition checks if the image has a related message -->
+                                <p>{{ image.messages }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for message in messages %}
+                <div class="msg right-msg">
+                    <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)"></div>
+                    <div class="msg-bubble">
+                        <div class="msg-info">
+                            <div class="msg-info-name">You</div>
+                            <div class="msg-info-time">{{ message.send_time }}</div>
+                        </div>
+                        <div class="msg-text">{{ message.message }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% for bot_response in bot_messages %}
+                <div class="msg left-msg">
+                    <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
+                    <div class="msg-bubble">
+                        <div class="msg-info">
+                            <div class="msg-info-name">BOT</div>
+                            <div class="msg-info-time">{{ bot_response.send_time }}</div>
+                        </div>
+                        <div class="msg-text">{{ bot_response.bot_response | replace('\n', '<br>')}}</div>
+                    </div>
+                </div>
+            {% endfor %}
+                <div class="msg left-msg">
+                <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
+                <div class="msg-bubble">
+                    <div class="msg-info">
+                    <div class="msg-info-name">BOT</div>
+                    <div class="msg-info-time"></div>
+                    </div>
+                    <div class="msg-text">
+                    Hi, welcome to Vision language model using visual reasoning information ChatBot! Go ahead and send me a message. 
+                    </div>
+                </div>
+                </div>
+            
+            
+        </main>
+
+
+        <form class="msger-inputarea" method="POST" action="{{ url_for('send') }}" enctype="multipart/form-data">
+          <input type="file" class=".msger-logout-btn" name="file" accept="image/*">
+          <input type="text" class="msger-input" name="message" placeholder="Enter your message…">
+          <button type="submit" class="msger-send-btn" value="Submit">Send</button>
+        </form>
+    </section>
+</body>
+</html>

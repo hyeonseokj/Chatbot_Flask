@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskApp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <h1><a>SIGN UP</a></h1>
+    <hr> 
+    <div class="email">
+    <form method="post">
+      <div style="float: left; width: 13%">
+        <p>
+          <input type="text" name="name"
+              placeholder="name"></input>
+      </p>
+      <p>
+          <input type="text" name="email"
+              placeholder="email"></input>
+      </p>
+      <p>
+          <input type="password" name="password"
+              placeholder="password"></input>
+      </p>
+      <hr>
+      <a href="login">
+        LOGIN
+    </a>
+    <a href="/">
+        HOME
+    </a>
+    </div>
+    <div style="float: left; width: 87%">
+      <div style="height: 92px">
+    </div>
+    <div style="height: 50px">
+    <button class='btn' type="submit">Submit</button>
+  </div>
+</div>
+  </form>
+  </div>
+
+</body>
+</html>
